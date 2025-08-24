@@ -340,3 +340,15 @@ API
 Training
 Blog
 About
+
+# Docker environment files
+.env
+.env.local
+.env.*.local
+
+# SSL certificates
+certs/
+*.pfx
+*.pem
+*.crt
+*.key

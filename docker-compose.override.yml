@@ -1,0 +1,54 @@
+version: '3.8'
+
+# Development override configuration
+# This file is automatically loaded by docker-compose when present
+
+services:
+  znn-wallet-api:
+    environment:
+      # Development environment
+      - ASPNETCORE_ENVIRONMENT=Development
+      
+      # Enable detailed errors
+      - ASPNETCORE_DETAILEDERRORS=true
+      
+      # Development logging
+      - Serilog__MinimumLevel=Debug
+      
+      # Development JWT settings (shorter expiration for testing)
+      - Api__Jwt__ExpiresAfter=00:30:00
+      
+      # Use testnet for development
+      - Api__Node__NodeUrl=wss://syrius-testnet.zenon.community:443
+      - Api__Node__ChainId=3
+      
+      # Development PlasmaBot URL (staging)
+      - Api__Utilities__PlasmaBot__ApiUrl=https://staging.zenonhub.io/api/utilities/plasma-bot/
+      
+      # Disable auto-locker for easier development
+      - Api__AutoLocker__Enabled=false
+      
+      # Faster auto-receiver for testing
+      - Api__AutoReceiver__TimerInterval=00:00:02
+    
+    volumes:
+      # Mount source code for potential hot reload (requires dotnet watch)
+      - ./src/ZenonWalletApi:/src/ZenonWalletApi:ro
+      
+      # Development certificates (generate with: dotnet dev-certs https -ep ./certs/aspnetapp.pfx -p YourPassword)
+      - ./certs:/https:ro
+    
+    ports:
+      # Use different ports for development to avoid conflicts
+      - "5000:80"
+      - "5001:443"
+    
+    # Disable restart in development for easier debugging
+    restart: "no"
+    
+    # More aggressive health check in development
+    healthcheck:
+      interval: 10s
+      timeout: 2s
+      retries: 2
+      start_period: 5s
